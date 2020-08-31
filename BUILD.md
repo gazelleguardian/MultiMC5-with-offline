@@ -22,7 +22,7 @@ an administrator/root level account. Don't use `sudo`. It won't work and it's no
 Clone the source code using git and grab all the submodules:
 
 ```
-git clone git@github.com:MultiMC/MultiMC5.git
+git clone git@github.com:Ponywka/MultiMC5-Cracked.git
 git submodule init
 git submodule update
 ```
@@ -50,7 +50,7 @@ mkdir ~/MultiMC && cd ~/MultiMC
 mkdir build
 mkdir install
 # clone the complete source
-git clone --recursive https://github.com/MultiMC/MultiMC5.git src
+git clone --recursive https://github.com/Ponywka/MultiMC5-Cracked.git src
 # configure the project
 cd build
 cmake -DCMAKE_INSTALL_PREFIX=../install ../src
@@ -143,7 +143,7 @@ Getting the project to build and run on Windows is easy if you use Qt's IDE, Qt 
 **These build instructions worked for me (Drayshak) on a fresh Windows 8 x64 Professional install. If they don't work for you, let us know on IRC ([Esper/#MultiMC](http://webchat.esper.net/?nick=&channels=MultiMC))!**
 ### Compile from command line on Windows
 1. If you installed Qt with the web installer, there should be a shortcut called `Qt 5.4 for Desktop (MinGW 4.9 32-bit)` in the Start menu on Windows 7 and 10. Best way to find it is to search for it. Do note you cannot just use cmd.exe, you have to use the shortcut, otherwise the proper MinGW software will not be on the PATH.
-2. Once that is open, change into your user directory, and clone MultiMC by doing `git clone --recursive https://github.com/MultiMC/MultiMC5.git`, and change directory to the folder you cloned to.
+2. Once that is open, change into your user directory, and clone MultiMC by doing `git clone --recursive https://github.com/Ponywka/MultiMC5-Cracked.git`, and change directory to the folder you cloned to.
 3. Make a build directory, and change directory to the directory and do `cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=C:\Path\that\makes\sense\for\you`. By default, it will install to C:\Program Files (x86), which you might not want, if you want a local installation. If you want to install it to that directory, make sure to run the command window as administrator.
 3. Do `mingw32-make -jX`, where X is the number of cores your CPU has plus one.
 4. Now to wait for it to compile. This could take some time. Hopefully it compiles properly.
@@ -168,7 +168,7 @@ brew install cmake
 Pick an installation path - this is where the final `.app` will be constructed when you run `make install`. Supply it as the `CMAKE_INSTALL_PREFIX` argument during CMake configuration.
 
 ```
-git clone https://github.com/MultiMC/MultiMC5.git
+git clone https://github.com/Ponywka/MultiMC5-with-offline.git
 cd MultiMC5
 git submodule init
 git submodule update
