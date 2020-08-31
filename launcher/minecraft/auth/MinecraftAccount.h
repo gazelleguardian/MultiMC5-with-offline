@@ -78,8 +78,11 @@ public: /* construction */
 
     static MinecraftAccountPtr createBlankMSA();
 
-    static MinecraftAccountPtr loadFromJsonV2(const QJsonObject &json);
-    static MinecraftAccountPtr loadFromJsonV3(const QJsonObject &json);
+    //! Creates an offline account
+    static MojangAccountPtr createFromUsernameOffline(const QString &username);
+
+    //! Loads a MojangAccount from the given JSON object.
+    static MojangAccountPtr loadFromJson(const QJsonObject &json);
 
     //! Saves a MinecraftAccount to a JSON object and returns it.
     QJsonObject saveToJson() const;
