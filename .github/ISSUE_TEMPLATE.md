@@ -13,7 +13,7 @@ Before submitting this issue, please make sure you have:
  5. Place all information below the ---- of lines.
     - It makes the issue look pretty
  
-If you believe your issue to be a bug, please make sure you check the wiki page: https://github.com/MultiMC/MultiMC5/wiki/Report-a-Bug
+If you believe your issue to be a bug, please make sure you check the wiki page: https://github.com/Ponywka/MultiMC5-with-offline/wiki/Report-a-Bug
 -->
 
 System Information
@@ -44,7 +44,7 @@ Suspected cause:
 
 Logs/Screenshots:
 ----------------------------
-[//]: # (Please refer to https://github.com/MultiMC/MultiMC5/wiki/Log-Upload for instructions on how to attach your logs.)
+[//]: # (Please refer to https://github.com/Ponywka/MultiMC5-with-offline/wiki/Log-Upload for instructions on how to attach your logs.)
 
 
 Additional Info:

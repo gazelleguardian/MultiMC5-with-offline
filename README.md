@@ -1,6 +1,12 @@
-<p align="center">
-  <img src="https://avatars2.githubusercontent.com/u/5411890" alt="MultiMC logo"/>
-</p>
+**This is a "cracked" version of a popular Minecraft launcher that lets you play the game without a Mojang account.**
+This software is not related to MultiMC developers and provided without any warranty. Please don't bomb MultiMC developers if something gets wrong using this launcher.
+
+Offline mode based by this code:
+https://github.com/MultiMC/MultiMC5/commit/6ede3c13b2bcda315e65dd78f2bfd729bc8b699b
+
+Rewrited for use license and offline accounts at the same time
+
+Details about the original launcher below:
 
 MultiMC 5
 =========
@@ -13,7 +19,7 @@ The project uses C++ and Qt5 as the language and base framework. This might seem
 
 We can do more, with less, on worse hardware and leave more resources for the game while keeping the launcher running and providing extra features.
 
-If you want to contribute, either talk to us on [Discord](https://discord.gg/0k2zsXGNHs0fE4Wm), [IRC](http://webchat.esper.net/?nick=&channels=MultiMC)(esper.net/#MultiMC) or pick up some item from the github issues [workflowy](https://github.com/MultiMC/MultiMC5/issues) - there is always plenty of ideas around.
+If you want to contribute, either talk to us on [Discord](https://discord.gg/0k2zsXGNHs0fE4Wm), [IRC](http://webchat.esper.net/?nick=&channels=MultiMC)(esper.net/#MultiMC) or pick up some item from the github issues [workflowy](https://github.com/Ponywka/MultiMC5-with-offline/issues) - there is always plenty of ideas around.
 
 ### Building
 If you want to build MultiMC yourself, check [BUILD.md](BUILD.md) for build instructions.

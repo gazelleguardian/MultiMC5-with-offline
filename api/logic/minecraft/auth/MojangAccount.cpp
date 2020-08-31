@@ -28,6 +28,8 @@
 
 #include <QDebug>
 
+#include <QCryptographicHash>
+
 MojangAccountPtr MojangAccount::loadFromJson(const QJsonObject &object)
 {
     // The JSON object must at least have a username for it to be valid.
@@ -100,6 +102,22 @@ MojangAccountPtr MojangAccount::createFromUsername(const QString &username)
     MojangAccountPtr account(new MojangAccount());
     account->m_clientToken = QUuid::createUuid().toString().remove(QRegExp("[{}-]"));
     account->m_username = username;
+    return account;
+}
+
+MojangAccountPtr MojangAccount::createFromUsernameOffline(const QString &username)
+{
+    // Offline mode based by this code:
+    // https://github.com/MultiMC/MultiMC5/commit/6ede3c13b2bcda315e65dd78f2bfd729bc8b699b
+    MojangAccountPtr account(new MojangAccount());
+    account->m_clientToken = "ff64ff64ff64ff64ff64ff64ff64ff64";
+    account->m_accessToken = "ff64ff64ff64ff64ff64ff64ff64ff64";
+    account->m_username = username;
+    QList<AccountProfile> profiles;
+    QString uuid = QCryptographicHash::hash(username.toLocal8Bit(), QCryptographicHash::Md5).toHex();
+    profiles.append({uuid, username, false});
+    account->m_profiles = profiles;
+    account->setCurrentProfile(uuid);
     return account;
 }
 

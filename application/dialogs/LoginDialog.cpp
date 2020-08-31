@@ -41,15 +41,22 @@ void LoginDialog::accept()
     setUserInputsEnabled(false);
     ui->progressBar->setVisible(true);
 
-    // Setup the login task and start it
-    m_account = MojangAccount::createFromUsername(ui->userTextBox->text());
-    m_loginTask = m_account->login(nullptr, ui->passTextBox->text());
-    connect(m_loginTask.get(), &Task::failed, this, &LoginDialog::onTaskFailed);
-    connect(m_loginTask.get(), &Task::succeeded, this,
-            &LoginDialog::onTaskSucceeded);
-    connect(m_loginTask.get(), &Task::status, this, &LoginDialog::onTaskStatus);
-    connect(m_loginTask.get(), &Task::progress, this, &LoginDialog::onTaskProgress);
-    m_loginTask->start();
+    if(!ui->passTextBox->text().isEmpty()){
+        // Online mode
+        // Setup the login task and start it
+        m_account = MojangAccount::createFromUsername(ui->userTextBox->text());
+        m_loginTask = m_account->login(nullptr, ui->passTextBox->text());
+        connect(m_loginTask.get(), &Task::failed, this, &LoginDialog::onTaskFailed);
+        connect(m_loginTask.get(), &Task::succeeded, this,
+                &LoginDialog::onTaskSucceeded);
+        connect(m_loginTask.get(), &Task::status, this, &LoginDialog::onTaskStatus);
+        connect(m_loginTask.get(), &Task::progress, this, &LoginDialog::onTaskProgress);
+        m_loginTask->start();
+    }else{
+        // Offline mode
+        m_account = MojangAccount::createFromUsernameOffline(ui->userTextBox->text());
+        QDialog::accept();
+    }
 }
 
 void LoginDialog::setUserInputsEnabled(bool enable)
@@ -63,12 +70,12 @@ void LoginDialog::setUserInputsEnabled(bool enable)
 void LoginDialog::on_userTextBox_textEdited(const QString &newText)
 {
     ui->buttonBox->button(QDialogButtonBox::Ok)
-        ->setEnabled(!newText.isEmpty() && !ui->passTextBox->text().isEmpty());
+        ->setEnabled(!newText.isEmpty());
 }
 void LoginDialog::on_passTextBox_textEdited(const QString &newText)
 {
     ui->buttonBox->button(QDialogButtonBox::Ok)
-        ->setEnabled(!newText.isEmpty() && !ui->userTextBox->text().isEmpty());
+        ->setEnabled(!ui->userTextBox->text().isEmpty());
 }
 
 void LoginDialog::onTaskFailed(const QString &reason)

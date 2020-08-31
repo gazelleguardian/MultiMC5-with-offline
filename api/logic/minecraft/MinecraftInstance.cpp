@@ -821,7 +821,9 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
     }
     else
     {
-        process->appendStep(new Update(pptr, Net::Mode::Offline));
+        // Offline mode based by this code:
+        // https://github.com/MultiMC/MultiMC5/commit/6ede3c13b2bcda315e65dd78f2bfd729bc8b699b
+        process->appendStep(new Update(pptr, Net::Mode::Online));
     }
 
     // if there are any jar mods
