@@ -1,4 +1,4 @@
-/* Copyright 2015-2019 MultiMC Contributors
+/* Copyright 2015-2021 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -170,6 +170,24 @@ void WorldListPage::on_actionView_Folder_triggered()
     DesktopServices::openDirectory(m_worlds->dir().absolutePath(), true);
 }
 
+void WorldListPage::on_actionDatapacks_triggered()
+{
+    QModelIndex index = getSelectedWorld();
+
+    if (!index.isValid())
+    {
+        return;
+    }
+
+    if(!worldSafetyNagQuestion())
+        return;
+
+    auto fullPath = m_worlds->data(index, WorldList::FolderRole).toString();
+
+    DesktopServices::openDirectory(FS::PathCombine(fullPath, "datapacks"), true);
+}
+
+
 void WorldListPage::on_actionReset_Icon_triggered()
 {
     auto proxiedIndex = getSelectedWorld();
@@ -296,6 +314,7 @@ void WorldListPage::worldChanged(const QModelIndex &current, const QModelIndex &
     ui->actionRemove->setEnabled(enable);
     ui->actionCopy->setEnabled(enable);
     ui->actionRename->setEnabled(enable);
+    ui->actionDatapacks->setEnabled(enable);
     bool hasIcon = !index.data(WorldList::IconFileRole).isNull();
     ui->actionReset_Icon->setEnabled(enable && hasIcon);
 }

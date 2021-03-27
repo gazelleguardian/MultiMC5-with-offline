@@ -1,4 +1,4 @@
-#include "FtbModel.h"
+#include "FtbListModel.h"
 
 #include "BuildConfig.h"
 #include "Env.h"
@@ -79,7 +79,7 @@ void ListModel::performSearch()
     auto *netJob = new NetJob("Ftb::Search");
     QString searchUrl;
     if(currentSearchTerm.isEmpty()) {
-        searchUrl = BuildConfig.MODPACKSCH_API_BASE_URL + "public/modpack/popular/plays/100";
+        searchUrl = BuildConfig.MODPACKSCH_API_BASE_URL + "public/modpack/all";
     }
     else {
         searchUrl = QString(BuildConfig.MODPACKSCH_API_BASE_URL + "public/modpack/search/25?term=%1")
@@ -106,21 +106,22 @@ void ListModel::getLogo(const QString &logo, const QString &logoUrl, LogoCallbac
 
 void ListModel::searchWithTerm(const QString &term)
 {
-    if(currentSearchTerm == term && currentSearchTerm.isNull() == term.isNull()) {
+    if(searchState != Failed && currentSearchTerm == term && currentSearchTerm.isNull() == term.isNull()) {
+        // unless the search has failed, then there is no need to perform an identical search.
         return;
     }
     currentSearchTerm = term;
+
     if(jobPtr) {
         jobPtr->abort();
-        searchState = ResetRequested;
-        return;
+        jobPtr.reset();
     }
-    else {
-        beginResetModel();
-        modpacks.clear();
-        endResetModel();
-        searchState = None;
-    }
+
+    beginResetModel();
+    modpacks.clear();
+    endResetModel();
+    searchState = None;
+
     performSearch();
 }
 
@@ -154,15 +155,7 @@ void ListModel::searchRequestFailed(QString reason)
     jobPtr.reset();
     remainingPacks.clear();
 
-    if(searchState == ResetRequested) {
-        beginResetModel();
-        modpacks.clear();
-        endResetModel();
-
-        performSearch();
-    } else {
-        searchState = Finished;
-    }
+    searchState = Failed;
 }
 
 void ListModel::requestPack()
@@ -206,9 +199,18 @@ void ListModel::packRequestFinished()
         return;
     }
 
-    beginInsertRows(QModelIndex(), modpacks.size(), modpacks.size());
-    modpacks.append(pack);
-    endInsertRows();
+    // Since there is no guarantee that packs have a version, this will just
+    // ignore those "dud" packs.
+    if (pack.versions.empty())
+    {
+        qWarning() << "FTB Pack " << pack.id << " ignored. reason: lacking any versions";
+    }
+    else
+    {
+        beginInsertRows(QModelIndex(), modpacks.size(), modpacks.size());
+        modpacks.append(pack);
+        endInsertRows();
+    }
 
     if(!remainingPacks.isEmpty()) {
         currentPack = remainingPacks.at(0);

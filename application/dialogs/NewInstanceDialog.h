@@ -1,4 +1,4 @@
-/* Copyright 2013-2019 MultiMC Contributors
+/* Copyright 2013-2021 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ class NewInstanceDialog;
 class PageContainer;
 class QDialogButtonBox;
 class ImportPage;
-class TwitchPage;
+class FlamePage;
 
 class NewInstanceDialog : public QDialog, public BasePageProvider
 {
@@ -68,7 +68,7 @@ private:
 
     QString InstIconKey;
     ImportPage *importPage = nullptr;
-    TwitchPage *twitchPage = nullptr;
+    FlamePage *flamePage = nullptr;
     std::unique_ptr<InstanceTask> creationTask;
 
     bool importIcon = false;

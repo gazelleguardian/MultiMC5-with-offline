@@ -15,63 +15,67 @@
 
 #pragma once
 
+#include "AtlFilterModel.h"
+#include "AtlModel.h"
+
 #include <QWidget>
 
+#include "MultiMC.h"
 #include "pages/BasePage.h"
-#include <MultiMC.h>
 #include "tasks/Task.h"
-#include "TwitchData.h"
 
 namespace Ui
 {
-class TwitchPage;
+    class AtlPage;
 }
 
 class NewInstanceDialog;
 
-namespace Twitch {
-    class ListModel;
-}
-
-class TwitchPage : public QWidget, public BasePage
+class AtlPage : public QWidget, public BasePage
 {
-    Q_OBJECT
+Q_OBJECT
 
 public:
-    explicit TwitchPage(NewInstanceDialog* dialog, QWidget *parent = 0);
-    virtual ~TwitchPage();
+    explicit AtlPage(NewInstanceDialog* dialog, QWidget *parent = 0);
+    virtual ~AtlPage();
     virtual QString displayName() const override
     {
-        return tr("Twitch");
+        return tr("ATLauncher");
     }
     virtual QIcon icon() const override
     {
-        return MMC->getThemedIcon("twitch");
+        return MMC->getThemedIcon("atlauncher");
     }
     virtual QString id() const override
     {
-        return "twitch";
+        return "atl";
     }
     virtual QString helpPage() const override
     {
-        return "Twitch-platform";
+        return "ATL-platform";
     }
     virtual bool shouldDisplay() const override;
 
     void openedImpl() override;
-
-    bool eventFilter(QObject * watched, QEvent * event) override;
 
 private:
     void suggestCurrent();
 
 private slots:
     void triggerSearch();
+    void resetSearch();
+
+    void onSortingSelectionChanged(QString data);
+
     void onSelectionChanged(QModelIndex first, QModelIndex second);
+    void onVersionSelectionChanged(QString data);
 
 private:
-    Ui::TwitchPage *ui = nullptr;
+    Ui::AtlPage *ui = nullptr;
     NewInstanceDialog* dialog = nullptr;
-    Twitch::ListModel* model = nullptr;
-    Twitch::Modpack current;
+    Atl::ListModel* listModel = nullptr;
+    Atl::FilterModel* filterModel = nullptr;
+
+    ATLauncher::IndexedPack selected;
+    QString selectedVersion;
 };

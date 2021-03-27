@@ -1,27 +1,21 @@
 #pragma once
 
-#include <modplatform/legacy_ftb/PackHelpers.h>
-#include <RWStorage.h>
-
 #include <QAbstractListModel>
-#include <QSortFilterProxyModel>
-#include <QThreadPool>
+
+#include "modplatform/modpacksch/FTBPackManifest.h"
+#include "net/NetJob.h"
 #include <QIcon>
-#include <QStyledItemDelegate>
-#include <QList>
-#include <QString>
-#include <QStringList>
-#include <QMetaType>
 
-#include <functional>
-#include <net/NetJob.h>
+namespace Ftb {
 
-#include "TwitchData.h"
+struct Logo {
+    QString fullpath;
+    NetJobPtr downloadJob;
+    QIcon result;
+    bool failed = false;
+};
 
-namespace Twitch {
-
-
-typedef QMap<QString, QIcon> LogoMap;
+typedef QMap<QString, Logo> LogoMap;
 typedef std::function<void(QString)> LogoCallback;
 
 class ListModel : public QAbstractListModel
@@ -35,41 +29,40 @@ public:
     int rowCount(const QModelIndex &parent) const override;
     int columnCount(const QModelIndex &parent) const override;
     QVariant data(const QModelIndex &index, int role) const override;
-    Qt::ItemFlags flags(const QModelIndex &index) const override;
-    bool canFetchMore(const QModelIndex & parent) const override;
-    void fetchMore(const QModelIndex & parent) override;
 
     void getLogo(const QString &logo, const QString &logoUrl, LogoCallback callback);
     void searchWithTerm(const QString & term);
 
 private slots:
-    void performPaginatedSearch();
-
-    void logoFailed(QString logo);
-    void logoLoaded(QString logo, QIcon out);
-
+    void performSearch();
     void searchRequestFinished();
     void searchRequestFailed(QString reason);
+
+    void requestPack();
+    void packRequestFinished();
+    void packRequestFailed(QString reason);
+
+    void logoFailed(QString logo);
+    void logoLoaded(QString logo, bool stale);
 
 private:
     void requestLogo(QString file, QString url);
 
 private:
-    QList<Modpack> modpacks;
-    QStringList m_failedLogos;
-    QStringList m_loadingLogos;
+    QList<ModpacksCH::Modpack> modpacks;
     LogoMap m_logoMap;
-    QMap<QString, LogoCallback> waitingCallbacks;
 
     QString currentSearchTerm;
-    int nextSearchOffset = 0;
     enum SearchState {
         None,
         CanPossiblyFetchMore,
         ResetRequested,
-        Finished
+        Finished,
+        Failed,
     } searchState = None;
     NetJobPtr jobPtr;
+    int currentPack;
+    QList<int> remainingPacks;
     QByteArray response;
 };
 

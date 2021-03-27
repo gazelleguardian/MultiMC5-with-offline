@@ -1,5 +1,5 @@
 #include "MinecraftInstance.h"
-#include <minecraft/launch/CreateServerResourcePacksFolder.h>
+#include <minecraft/launch/CreateGameFolders.h>
 #include <minecraft/launch/ExtractNatives.h>
 #include <minecraft/launch/PrintInstanceInfo.h>
 #include <settings/Setting.h>
@@ -38,6 +38,7 @@
 #include "MinecraftUpdate.h"
 #include "MinecraftLoadAndCheck.h"
 #include <minecraft/gameoptions/GameOptions.h>
+#include <minecraft/update/FoldersTask.h>
 
 #define IBUS "@im=ibus"
 
@@ -525,11 +526,23 @@ QStringList MinecraftInstance::verboseDescription(AuthSessionPtr session)
         out << "";
     }
 
+    auto settings = this->settings();
+    bool nativeOpenAL = settings->get("UseNativeOpenAL").toBool();
+    bool nativeGLFW = settings->get("UseNativeGLFW").toBool();
+    if (nativeOpenAL || nativeGLFW)
+    {
+        if (nativeOpenAL)
+            out << "Using system OpenAL.";
+        if (nativeGLFW)
+            out << "Using system GLFW.";
+        out << "";
+    }
+
     // libraries and class path.
     {
         out << "Libraries:";
         QStringList jars, nativeJars;
-        auto javaArchitecture = settings()->get("JavaArchitecture").toString();
+        auto javaArchitecture = settings->get("JavaArchitecture").toString();
         profile->getLibraryFiles(javaArchitecture, jars, nativeJars, getLocalLibraryPath(), binRoot());
         auto printLibFile = [&](const QString & path)
         {
@@ -615,14 +628,14 @@ QStringList MinecraftInstance::verboseDescription(AuthSessionPtr session)
     out << "";
 
     QString windowParams;
-    if (settings()->get("LaunchMaximized").toBool())
+    if (settings->get("LaunchMaximized").toBool())
     {
         out << "Window size: max (if available)";
     }
     else
     {
-        auto width = settings()->get("MinecraftWinWidth").toInt();
-        auto height = settings()->get("MinecraftWinHeight").toInt();
+        auto width = settings->get("MinecraftWinWidth").toInt();
+        auto height = settings->get("MinecraftWinHeight").toInt();
         out << "Window size: " + QString::number(width) + " x " + QString::number(height);
     }
     out << "";
@@ -810,6 +823,11 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
         return process;
     }
 
+    // create the .minecraft folder and server-resource-packs (workaround for Minecraft bug MCL-3732)
+    {
+        process->appendStep(new CreateGameFolders(pptr));
+    }
+
     // run pre-launch command if that's needed
     if(getPreLaunchCommand().size())
     {
@@ -836,7 +854,7 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
         process->appendStep(new ModMinecraftJar(pptr));
     }
 
-    // if there are any jar mods
+    // Scan mods folders for mods
     {
         process->appendStep(new ScanModFolders(pptr));
     }
@@ -844,11 +862,6 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
     // print some instance info here...
     {
         process->appendStep(new PrintInstanceInfo(pptr, session));
-    }
-
-    // create the server-resource-packs folder (workaround for Minecraft bug MCL-3732)
-    {
-        process->appendStep(new CreateServerResourcePacksFolder(pptr));
     }
 
     // extract native jars if needed
