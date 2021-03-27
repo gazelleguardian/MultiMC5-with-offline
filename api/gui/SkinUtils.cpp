@@ -1,4 +1,4 @@
-/* Copyright 2013-2019 MultiMC Contributors
+/* Copyright 2013-2021 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 #include "Env.h"
 
 #include <QFile>
+#include <QPainter>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -35,10 +36,14 @@ QPixmap getFaceFromCache(QString username, int height, int width)
 
     if (fskin.exists())
     {
-        QPixmap skin(fskin.fileName());
-        if(!skin.isNull())
+        QPixmap skinTexture(fskin.fileName());
+        if(!skinTexture.isNull())
         {
-            return skin.copy(8, 8, 8, 8).scaled(height, width, Qt::KeepAspectRatio);
+            QPixmap skin = QPixmap(8, 8);
+            QPainter painter(&skin);
+            painter.drawPixmap(0, 0, skinTexture.copy(8, 8, 8, 8));
+            painter.drawPixmap(0, 0, skinTexture.copy(40, 8, 8, 8));
+            return skin.scaled(height, width, Qt::KeepAspectRatio);
         }
     }
 

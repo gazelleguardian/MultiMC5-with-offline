@@ -45,7 +45,6 @@
 #include <minecraft/auth/MojangAccountList.h>
 #include "icons/IconList.h"
 #include "net/HttpMetaCache.h"
-#include "net/URLConstants.h"
 #include "Env.h"
 
 #include "java/JavaUtils.h"
@@ -146,6 +145,27 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
 
     startTime = QDateTime::currentDateTime();
 
+#ifdef Q_OS_LINUX
+    {
+        QFile osrelease("/proc/sys/kernel/osrelease");
+        if (osrelease.open(QFile::ReadOnly | QFile::Text)) {
+            QTextStream in(&osrelease);
+            auto contents = in.readAll();
+            if(
+                contents.contains("WSL", Qt::CaseInsensitive) ||
+                contents.contains("Microsoft", Qt::CaseInsensitive)
+            ) {
+                showFatalErrorMessage(
+                    "Unsupported system detected!",
+                    "Linux-on-Windows distributions are not supported.\n\n"
+                    "Please use the Windows MultiMC binary when playing on Windows."
+                );
+                return;
+            }
+        }
+    }
+#endif
+
     // Don't quit on hiding the last window
     this->setQuitOnLastWindowClosed(false);
 
@@ -187,8 +207,9 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         catch (const ParsingError &e)
         {
             std::cerr << "CommandLineError: " << e.what() << std::endl;
-            std::cerr << "Try '%1 -h' to get help on MultiMC's command line parameters."
-                      << std::endl;
+            if(argc > 0)
+                std::cerr << "Try '" << argv[0] << " -h' to get help on MultiMC's command line parameters."
+                          << std::endl;
             m_status = MultiMC::Failed;
             return;
         }
@@ -358,7 +379,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         ENV.setJarsPath( TOSTRING(MULTIMC_JARS_LOCATION) );
 #endif
 
-        qDebug() << "MultiMC 5, (c) 2013-2019 MultiMC Contributors";
+        qDebug() << "MultiMC 5, (c) 2013-2021 MultiMC Contributors";
         qDebug() << "Version                    : " << BuildConfig.printableVersionString();
         qDebug() << "Git commit                 : " << BuildConfig.GIT_COMMIT;
         qDebug() << "Git refspec                : " << BuildConfig.GIT_REFSPEC;
@@ -485,8 +506,13 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         m_settings->registerSetting("JavaTimestamp", 0);
         m_settings->registerSetting("JavaArchitecture", "");
         m_settings->registerSetting("JavaVersion", "");
+        m_settings->registerSetting("JavaVendor", "");
         m_settings->registerSetting("LastHostname", "");
         m_settings->registerSetting("JvmArgs", "");
+
+        // Native library workarounds
+        m_settings->registerSetting("UseNativeOpenAL", false);
+        m_settings->registerSetting("UseNativeGLFW", false);
 
         // Minecraft launch method
         m_settings->registerSetting("MCLaunchMethod", "LauncherPart");
@@ -867,8 +893,7 @@ void MultiMC::messageReceived(const QString& message)
         return;
     }
 
-    QStringList args = message.split(' ');
-    QString command = args.takeFirst();
+    QString command = message.section(' ', 0, 0);
 
     if(command == "activate")
     {
@@ -876,21 +901,23 @@ void MultiMC::messageReceived(const QString& message)
     }
     else if(command == "import")
     {
-        if(args.isEmpty())
+        QString arg = message.section(' ', 1);
+        if(arg.isEmpty())
         {
             qWarning() << "Received" << command << "message without a zip path/URL.";
             return;
         }
-        m_mainWindow->droppedURLs({ QUrl(args.takeFirst()) });
+        m_mainWindow->droppedURLs({ QUrl(arg) });
     }
     else if(command == "launch")
     {
-        if(args.isEmpty())
+        QString arg = message.section(' ', 1);
+        if(arg.isEmpty())
         {
             qWarning() << "Received" << command << "message without an instance ID.";
             return;
         }
-        auto inst = instances()->getInstanceById(args.takeFirst());
+        auto inst = instances()->getInstanceById(arg);
         if(inst)
         {
             launch(inst, true, nullptr);

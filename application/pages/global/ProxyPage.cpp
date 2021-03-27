@@ -1,4 +1,4 @@
-/* Copyright 2013-2019 MultiMC Contributors
+/* Copyright 2013-2021 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,7 +95,7 @@ void ProxyPage::loadSettings()
         ui->proxyHTTPBtn->setChecked(true);
 
     ui->proxyAddrEdit->setText(s->get("ProxyAddr").toString());
-    ui->proxyPortEdit->setValue(s->get("ProxyPort").value<qint16>());
+    ui->proxyPortEdit->setValue(s->get("ProxyPort").value<uint16_t>());
     ui->proxyUserEdit->setText(s->get("ProxyUser").toString());
     ui->proxyPassEdit->setText(s->get("ProxyPass").toString());
 }

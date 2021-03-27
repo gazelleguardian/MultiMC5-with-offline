@@ -1,4 +1,4 @@
-/* Copyright 2013-2019 MultiMC Contributors
+/* Copyright 2013-2021 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 
 #include "ReconstructAssets.h"
 #include "minecraft/MinecraftInstance.h"
-#include "minecraft/ComponentList.h"
+#include "minecraft/PackProfile.h"
 #include "minecraft/AssetsUtils.h"
 #include "launch/LaunchTask.h"
 
@@ -23,7 +23,7 @@ void ReconstructAssets::executeTask()
 {
     auto instance = m_parent->instance();
     std::shared_ptr<MinecraftInstance> minecraftInstance = std::dynamic_pointer_cast<MinecraftInstance>(instance);
-    auto components = minecraftInstance->getComponentList();
+    auto components = minecraftInstance->getPackProfile();
     auto profile = components->getProfile();
     auto assets = profile->getMinecraftAssets();
 

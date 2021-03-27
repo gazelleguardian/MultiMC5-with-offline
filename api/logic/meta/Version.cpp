@@ -1,4 +1,4 @@
-/* Copyright 2015-2019 MultiMC Contributors
+/* Copyright 2015-2021 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 #include <QDateTime>
 
 #include "JsonFormat.h"
-#include "minecraft/ComponentList.h"
+#include "minecraft/PackProfile.h"
 
 Meta::Version::Version(const QString &uid, const QString &version)
     : BaseVersion(), m_uid(uid), m_version(version)

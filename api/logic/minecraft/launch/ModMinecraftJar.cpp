@@ -1,4 +1,4 @@
-/* Copyright 2013-2019 MultiMC Contributors
+/* Copyright 2013-2021 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 #include "minecraft/OpSys.h"
 #include "FileSystem.h"
 #include "minecraft/MinecraftInstance.h"
-#include "minecraft/ComponentList.h"
+#include "minecraft/PackProfile.h"
 
 void ModMinecraftJar::executeTask()
 {
@@ -43,7 +43,7 @@ void ModMinecraftJar::executeTask()
     }
 
     // create temporary modded jar, if needed
-    auto components = m_inst->getComponentList();
+    auto components = m_inst->getPackProfile();
     auto profile = components->getProfile();
     auto jarMods = m_inst->getJarMods();
     if(jarMods.size())

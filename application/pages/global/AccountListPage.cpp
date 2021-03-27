@@ -1,4 +1,4 @@
-/* Copyright 2013-2019 MultiMC Contributors
+/* Copyright 2013-2021 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@
 #include <QDebug>
 
 #include "net/NetJob.h"
-#include "net/URLConstants.h"
 #include "Env.h"
 
 #include "dialogs/ProgressDialog.h"
@@ -31,8 +30,11 @@
 #include "dialogs/SkinUploadDialog.h"
 #include "tasks/Task.h"
 #include "minecraft/auth/YggdrasilTask.h"
+#include "minecraft/services/SkinDelete.h"
 
 #include "MultiMC.h"
+
+#include "BuildConfig.h"
 
 AccountListPage::AccountListPage(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::AccountListPage)
@@ -141,6 +143,7 @@ void AccountListPage::updateButtonStates()
     ui->actionRemove->setEnabled(selection.size() > 0);
     ui->actionSetDefault->setEnabled(selection.size() > 0);
     ui->actionUploadSkin->setEnabled(selection.size() > 0);
+    ui->actionDeleteSkin->setEnabled(selection.size() > 0);
 
     if(m_accounts->activeAccount().get() == nullptr) {
         ui->actionNoDefault->setEnabled(false);
@@ -170,7 +173,7 @@ void AccountListPage::addAccount(const QString &errMsg)
         for (AccountProfile profile : account->profiles())
         {
             auto meta = Env::getInstance().metacache()->resolveEntry("skins", profile.id + ".png");
-            auto action = Net::Download::makeCached(QUrl(URLConstants::SKINS_BASE + profile.id + ".png"), meta);
+            auto action = Net::Download::makeCached(QUrl(BuildConfig.SKINS_BASE + profile.id + ".png"), meta);
             job->addNetAction(action);
             meta->setStale(true);
         }
@@ -188,5 +191,27 @@ void AccountListPage::on_actionUploadSkin_triggered()
         MojangAccountPtr account = selected.data(MojangAccountList::PointerRole).value<MojangAccountPtr>();
         SkinUploadDialog dialog(account, this);
         dialog.exec();
+    }
+}
+
+void AccountListPage::on_actionDeleteSkin_triggered()
+{
+    QModelIndexList selection = ui->listView->selectionModel()->selectedIndexes();
+    if (selection.size() <= 0)
+        return;
+
+    QModelIndex selected = selection.first();
+    AuthSessionPtr session = std::make_shared<AuthSession>();
+    MojangAccountPtr account = selected.data(MojangAccountList::PointerRole).value<MojangAccountPtr>();
+    auto login = account->login(session);
+    ProgressDialog prog(this);
+    if (prog.execWithTask((Task*)login.get()) != QDialog::Accepted) {
+        CustomMessageBox::selectable(this, tr("Skin Delete"), tr("Failed to login!"), QMessageBox::Warning)->exec();
+        return;
+    }
+    auto deleteSkinTask = std::make_shared<SkinDelete>(this, session);
+    if (prog.execWithTask((Task*)deleteSkinTask.get()) != QDialog::Accepted) {
+        CustomMessageBox::selectable(this, tr("Skin Delete"), tr("Failed to delete current skin!"), QMessageBox::Warning)->exec();
+        return;
     }
 }

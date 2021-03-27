@@ -1,4 +1,4 @@
-/* Copyright 2013-2019 MultiMC Contributors
+/* Copyright 2013-2021 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 
 #include <Env.h>
 
-#include <net/URLConstants.h>
+#include <BuildConfig.h>
 
 #include <QDebug>
 
@@ -42,7 +42,7 @@ void YggdrasilTask::executeTask()
     // Get the content of the request we're going to send to the server.
     QJsonDocument doc(getRequestContent());
 
-    QUrl reqUrl(URLConstants::AUTH_BASE + getEndpoint());
+    QUrl reqUrl(BuildConfig.AUTH_BASE + getEndpoint());
     QNetworkRequest netRequest(reqUrl);
     netRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 

@@ -119,8 +119,6 @@ set(NET_SOURCES
     net/PasteUpload.cpp
     net/PasteUpload.h
     net/Sink.h
-    net/URLConstants.cpp
-    net/URLConstants.h
     net/Validator.h
 )
 
@@ -228,8 +226,8 @@ set(MINECRAFT_SOURCES
 
     minecraft/launch/ClaimAccount.cpp
     minecraft/launch/ClaimAccount.h
-    minecraft/launch/CreateServerResourcePacksFolder.cpp
-    minecraft/launch/CreateServerResourcePacksFolder.h
+    minecraft/launch/CreateGameFolders.cpp
+    minecraft/launch/CreateGameFolders.h
     minecraft/launch/ModMinecraftJar.cpp
     minecraft/launch/ModMinecraftJar.h
     minecraft/launch/DirectJavaLaunch.cpp
@@ -259,8 +257,8 @@ set(MINECRAFT_SOURCES
     minecraft/LaunchProfile.h
     minecraft/Component.cpp
     minecraft/Component.h
-    minecraft/ComponentList.cpp
-    minecraft/ComponentList.h
+    minecraft/PackProfile.cpp
+    minecraft/PackProfile.h
     minecraft/ComponentUpdateTask.cpp
     minecraft/ComponentUpdateTask.h
     minecraft/MinecraftLoadAndCheck.h
@@ -305,19 +303,36 @@ set(MINECRAFT_SOURCES
     minecraft/AssetsUtils.h
     minecraft/AssetsUtils.cpp
 
-    # Forge and all things forge related
-    minecraft/forge/ForgeXzDownload.h
-    minecraft/forge/ForgeXzDownload.cpp
+    # Minecraft services
+    minecraft/services/SkinUpload.cpp
+    minecraft/services/SkinUpload.h
+    minecraft/services/SkinDelete.cpp
+    minecraft/services/SkinDelete.h
 
-    # Skin upload utilities
-    minecraft/SkinUpload.cpp
-    minecraft/SkinUpload.h
+    mojang/PackageManifest.h
+    mojang/PackageManifest.cpp
     )
 
 add_unit_test(GradleSpecifier
     SOURCES minecraft/GradleSpecifier_test.cpp
     LIBS MultiMC_logic
     )
+
+add_executable(PackageManifest
+    mojang/PackageManifest_test.cpp
+)
+target_link_libraries(PackageManifest
+    MultiMC_logic
+    Qt5::Test
+)
+target_include_directories(PackageManifest
+    PRIVATE ../../cmake/UnitTest/
+)
+add_test(
+    NAME PackageManifest
+    COMMAND PackageManifest
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
 add_unit_test(MojangVersionFormat
     SOURCES minecraft/MojangVersionFormat_test.cpp
@@ -457,6 +472,31 @@ set(FLAME_SOURCES
     modplatform/flame/FileResolvingTask.cpp
 )
 
+set(MODPACKSCH_SOURCES
+    modplatform/modpacksch/FTBPackInstallTask.h
+    modplatform/modpacksch/FTBPackInstallTask.cpp
+    modplatform/modpacksch/FTBPackManifest.h
+    modplatform/modpacksch/FTBPackManifest.cpp
+)
+
+set(TECHNIC_SOURCES
+    modplatform/technic/SingleZipPackInstallTask.h
+    modplatform/technic/SingleZipPackInstallTask.cpp
+    modplatform/technic/SolderPackInstallTask.h
+    modplatform/technic/SolderPackInstallTask.cpp
+    modplatform/technic/TechnicPackProcessor.h
+    modplatform/technic/TechnicPackProcessor.cpp
+)
+
+set(ATLAUNCHER_SOURCES
+    modplatform/atlauncher/ATLPackIndex.cpp
+    modplatform/atlauncher/ATLPackIndex.h
+    modplatform/atlauncher/ATLPackInstallTask.cpp
+    modplatform/atlauncher/ATLPackInstallTask.h
+    modplatform/atlauncher/ATLPackManifest.cpp
+    modplatform/atlauncher/ATLPackManifest.h
+)
+
 add_unit_test(Index
     SOURCES meta/Index_test.cpp
     LIBS MultiMC_logic
@@ -487,6 +527,9 @@ set(LOGIC_SOURCES
     ${ICONS_SOURCES}
     ${FTB_SOURCES}
     ${FLAME_SOURCES}
+    ${MODPACKSCH_SOURCES}
+    ${TECHNIC_SOURCES}
+    ${ATLAUNCHER_SOURCES}
 )
 
 add_library(MultiMC_logic SHARED ${LOGIC_SOURCES})
@@ -495,7 +538,7 @@ set_target_properties(MultiMC_logic PROPERTIES CXX_VISIBILITY_PRESET hidden VISI
 generate_export_header(MultiMC_logic)
 
 # Link
-target_link_libraries(MultiMC_logic xz-embedded MultiMC_unpack200 systeminfo MultiMC_quazip MultiMC_classparser ${NBT_NAME} ${ZLIB_LIBRARIES})
+target_link_libraries(MultiMC_logic systeminfo MultiMC_quazip MultiMC_classparser ${NBT_NAME} ${ZLIB_LIBRARIES} optional-bare BuildConfig)
 target_link_libraries(MultiMC_logic Qt5::Core Qt5::Xml Qt5::Network Qt5::Concurrent)
 
 # Mark and export headers

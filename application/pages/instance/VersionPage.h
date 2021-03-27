@@ -1,4 +1,4 @@
-/* Copyright 2013-2019 MultiMC Contributors
+/* Copyright 2013-2021 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 #include <QMainWindow>
 
 #include "minecraft/MinecraftInstance.h"
-#include "minecraft/ComponentList.h"
+#include "minecraft/PackProfile.h"
 #include "pages/BasePage.h"
 
 namespace Ui
@@ -82,11 +82,11 @@ protected:
     QMenu * createPopupMenu() override;
 
     /// FIXME: this shouldn't be necessary!
-    bool reloadComponentList();
+    bool reloadPackProfile();
 
 private:
     Ui::VersionPage *ui;
-    std::shared_ptr<ComponentList> m_profile;
+    std::shared_ptr<PackProfile> m_profile;
     MinecraftInstance *m_inst;
     int currentIdx = 0;
     bool controlsEnabled = false;

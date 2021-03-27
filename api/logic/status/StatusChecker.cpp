@@ -1,4 +1,4 @@
-/* Copyright 2013-2019 MultiMC Contributors
+/* Copyright 2013-2021 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
 
 #include "StatusChecker.h"
 
-#include <net/URLConstants.h>
-
 #include <QByteArray>
 
 #include <QDebug>
+
+#include <BuildConfig.h>
 
 StatusChecker::StatusChecker()
 {
@@ -43,7 +43,7 @@ void StatusChecker::reloadStatus()
     // qDebug() << "Reloading status.";
 
     NetJob* job = new NetJob("Status JSON");
-    job->addNetAction(Net::Download::makeByteArray(URLConstants::MOJANG_STATUS_URL, &dataSink));
+    job->addNetAction(Net::Download::makeByteArray(BuildConfig.MOJANG_STATUS_URL, &dataSink));
     QObject::connect(job, &NetJob::succeeded, this, &StatusChecker::statusDownloadFinished);
     QObject::connect(job, &NetJob::failed, this, &StatusChecker::statusDownloadFailed);
     m_statusNetJob.reset(job);

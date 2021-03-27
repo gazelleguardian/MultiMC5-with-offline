@@ -1,4 +1,4 @@
-/* Copyright 2013-2019 MultiMC Contributors
+/* Copyright 2013-2021 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@
 #include "FileSystem.h"
 #include "net/Download.h"
 #include "net/ChecksumValidator.h"
-#include "net/URLConstants.h"
+#include "BuildConfig.h"
 
 namespace {
 QSet<QString> collectPathsFromDir(QString dirPath)
@@ -308,7 +308,7 @@ QString AssetObject::getLocalPath()
 
 QUrl AssetObject::getUrl()
 {
-    return URLConstants::RESOURCE_BASE + getRelPath();
+    return BuildConfig.RESOURCE_BASE + getRelPath();
 }
 
 QString AssetObject::getRelPath()

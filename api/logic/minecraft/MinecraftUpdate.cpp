@@ -1,4 +1,4 @@
-/* Copyright 2013-2019 MultiMC Contributors
+/* Copyright 2013-2021 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
  */
 
 #include "Env.h"
-#include <minecraft/forge/ForgeXzDownload.h>
 #include "MinecraftUpdate.h"
 #include "MinecraftInstance.h"
 
@@ -24,9 +23,8 @@
 #include <QDataStream>
 
 #include "BaseInstance.h"
-#include "minecraft/ComponentList.h"
+#include "minecraft/PackProfile.h"
 #include "minecraft/Library.h"
-#include "net/URLConstants.h"
 #include <FileSystem.h>
 
 #include "update/FoldersTask.h"
@@ -51,7 +49,7 @@ void MinecraftUpdate::executeTask()
 
     // add metadata update task if necessary
     {
-        auto components = m_inst->getComponentList();
+        auto components = m_inst->getPackProfile();
         components->reload(Net::Mode::Online);
         auto task = components->getCurrentTask();
         if(task)

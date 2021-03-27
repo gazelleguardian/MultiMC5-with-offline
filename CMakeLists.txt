@@ -2,7 +2,15 @@ cmake_minimum_required(VERSION 3.1)
 
 string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_BUILD_DIR}" IS_IN_SOURCE_BUILD)
 if(IS_IN_SOURCE_BUILD)
-    message(AUTHOR_WARNING "You are building MultiMC in-source. This is NOT recommended!")
+    message(FATAL_ERROR "You are building MultiMC in-source. Please separate the build tree from the source tree.")
+endif()
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    if(CMAKE_HOST_SYSTEM_VERSION MATCHES ".*[Mm]icrosoft.*" OR
+        CMAKE_HOST_SYSTEM_VERSION MATCHES ".*WSL.*"
+    )
+        message(FATAL_ERROR "Building MultiMC is not supported in Linux-on-Windows distributions.")
+    endif()
 endif()
 
 if(WIN32)
@@ -12,6 +20,7 @@ endif()
 
 project(MultiMC)
 enable_testing()
+
 
 ##################################### Set CMake options #####################################
 set(CMAKE_AUTOMOC ON)
@@ -46,7 +55,7 @@ set(MultiMC_NEWS_RSS_URL "https://multimc.org/rss.xml" CACHE STRING "URL to fetc
 ######## Set version numbers ########
 set(MultiMC_VERSION_MAJOR    0)
 set(MultiMC_VERSION_MINOR    6)
-set(MultiMC_VERSION_HOTFIX   11)
+set(MultiMC_VERSION_HOTFIX   12)
 
 # Build number
 set(MultiMC_VERSION_BUILD -1 CACHE STRING "Build number. -1 for no build number.")
@@ -59,6 +68,9 @@ set(MultiMC_CHANLIST_URL "" CACHE STRING "URL for the channel list.")
 
 # Notification URL
 set(MultiMC_NOTIFICATION_URL "" CACHE STRING "URL for checking for notifications.")
+
+# The metadata server
+set(MultiMC_META_URL "https://meta.multimc.org/v1/" CACHE STRING "URL to fetch MultiMC's meta files from.")
 
 # paste.ee API key
 set(MultiMC_PASTE_EE_API_KEY "utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ" CACHE STRING "API key you can get from paste.ee when you register an account")
@@ -142,7 +154,7 @@ if(MultiMC_LAYOUT_REAL STREQUAL "mac-bundle")
     set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${MultiMC_VERSION_MAJOR}.${MultiMC_VERSION_MINOR}.${MultiMC_VERSION_HOTFIX}.${MultiMC_VERSION_BUILD}")
     set(MACOSX_BUNDLE_LONG_VERSION_STRING "${MultiMC_VERSION_MAJOR}.${MultiMC_VERSION_MINOR}.${MultiMC_VERSION_HOTFIX}.${MultiMC_VERSION_BUILD}")
     set(MACOSX_BUNDLE_ICON_FILE MultiMC.icns)
-    set(MACOSX_BUNDLE_COPYRIGHT "Copyright 2015-2019 MultiMC Contributors")
+    set(MACOSX_BUNDLE_COPYRIGHT "Copyright 2015-2021 MultiMC Contributors")
 
     # directories to look for dependencies
     set(DIRS ${QT_LIBS_DIR} ${QT_LIBEXECS_DIR} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
@@ -248,14 +260,15 @@ add_subdirectory(libraries/launcher) # java based launcher part for Minecraft
 add_subdirectory(libraries/javacheck) # java compatibility checker
 add_subdirectory(libraries/xz-embedded) # xz compression
 add_subdirectory(libraries/quazip) # zip manipulation library
-add_subdirectory(libraries/pack200) # java pack200 compression
 add_subdirectory(libraries/rainbow) # Qt extension for colors
 add_subdirectory(libraries/iconfix) # fork of Qt's QIcon loader
 add_subdirectory(libraries/LocalPeer) # fork of a library from Qt solutions
 add_subdirectory(libraries/classparser) # google analytics library
+add_subdirectory(libraries/optional-bare)
 
 ############################### Built Artifacts ###############################
 
+add_subdirectory(buildconfig)
 add_subdirectory(api/logic)
 add_subdirectory(api/gui)
 
