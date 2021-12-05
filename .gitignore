@@ -33,3 +33,7 @@ tags
 
 branding
 secrets
+
+# Clangd stuff
+compile_commands.json
+.cache

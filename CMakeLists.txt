@@ -46,6 +46,11 @@ if(UNIX AND APPLE)
     set(CMAKE_CXX_FLAGS " -stdlib=libc++ ${CMAKE_CXX_FLAGS}")
 endif()
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Werror=return-type")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND WIN32)
+    message("Using Clang on windows")
+    set(CMAKE_CXX_FLAGS "-Wno-language-extension-token -fcolor-diagnostics ${CMAKE_CXX_FLAGS}")
+    set(CMAKE_CXX_FLAGS_DEBUG "-Wno-language-extension-token -fcolor-diagnostics ${CMAKE_CXX_FLAGS_DEBUG}")
+endif()
 
 ##################################### Set Application options #####################################
 
