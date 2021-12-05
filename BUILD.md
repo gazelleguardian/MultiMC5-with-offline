@@ -1,4 +1,64 @@
-Build Instructions
+# Clang branch
+
+This branch is the same as the "stable" branch but has modifications that make it possible to compile it with clang (not clang cl) on Windows.
+
+For building with other compielers and on non-windows check out other branches
+
+## Building with clang, vcpkg and ninja
+
+1. Install clang
+
+    I built it from source but you can download a prebuilt version
+
+    Note that we need the binary called "clang" (uses command line arguments GNU styles) and not "clang-cl" (cl.exe styles command line). Not sure if the version installed with Visual Studio includes clang or only clang-cl
+
+2. Install Dependencies
+
+    MultiMC depends on QT5 and zlib. You can either download prebuilt binaries or build them from source.
+    If you build them from source (like I did) I recommend using vcpkg.
+
+    `vcpkg install qt5` and `vkpg install zlib` are all you need to get the dependencies (note that it takes a while to build QT5)
+
+3. Change the variables on top of *build.bat* to suit your system
+
+    In particular change **VCPKG_D** to the root of your vcpkg installation and **CLANG_BIN** to the folder containing "clang.exe"
+
+4. Open the visual studio command x64 command prompt
+
+    You can launch it by seaching "x64 Native Tools" on the search bar or by running the vcvars64.bat script in any cmd shell (default location: `C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat`)
+
+    This puts cmake on the path if you didnt already have it and populates some variables like %LIB%
+
+5. Generate Projects
+
+    Generate the projects using "./build.bat Debug|Release|RelWithDebInfo"
+
+    By defaults this puts the CMake projects in `./build/{compiler}-{build-type}` and installs in `build/{compiler}-{build-type}-install`
+
+    Make sure it says that prints the following lines
+    ```
+    -- The C compiler identification is Clang 12.0.0 with GNU-like command-line
+    -- The CXX compiler identification is Clang 12.0.0 with GNU-like command-line
+    ```
+
+    *You are obviously not required to use this batch script but it can serve as a good starting point*
+
+6. Build
+
+    build.bat gives you the commands to run in order to build the project if the generation step goes well. Something like:
+
+    ```
+    Configuration Release created with compiler Clang in build/Clang-Release
+    Commands:
+    compile: cmake --build build/Clang-Release
+    install: cmake --build build/Clang-Release -t install
+    ```
+
+### Notes
+
+- Currently the install target does't really work, it's missing some dll probably
+
+Original Build Instructions (non clang)
 ==================
 
 # Contents

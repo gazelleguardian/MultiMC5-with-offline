@@ -1,6 +1,6 @@
 [submodule "depends/libnbtplusplus"]
     path = libraries/libnbtplusplus
-    url = https://github.com/MultiMC/libnbtplusplus.git
+    url = https://github.com/gazelleguardian/libnbtplusplus.git
 [submodule "libraries/quazip"]
     path = libraries/quazip
     url = https://github.com/MultiMC/quazip.git
