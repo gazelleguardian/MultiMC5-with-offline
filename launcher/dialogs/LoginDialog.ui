@@ -6,13 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-<<<<<<< HEAD:launcher/dialogs/LoginDialog.ui
     <width>421</width>
     <height>198</height>
-=======
-    <width>400</width>
-    <height>250</height>
->>>>>>> 8f2bcfc5 (Offline patch):application/dialogs/LoginDialog.ui
    </rect>
   </property>
   <property name="sizePolicy">

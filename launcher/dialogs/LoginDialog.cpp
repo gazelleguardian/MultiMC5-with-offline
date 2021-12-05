@@ -44,7 +44,7 @@ void LoginDialog::accept()
     if(!ui->passTextBox->text().isEmpty()){
         // Online mode
         // Setup the login task and start it
-        m_account = MojangAccount::createFromUsername(ui->userTextBox->text());
+        m_account = MinecraftAccount::createFromUsername(ui->userTextBox->text());
         m_loginTask = m_account->login(nullptr, ui->passTextBox->text());
         connect(m_loginTask.get(), &Task::failed, this, &LoginDialog::onTaskFailed);
         connect(m_loginTask.get(), &Task::succeeded, this,
@@ -54,7 +54,7 @@ void LoginDialog::accept()
         m_loginTask->start();
     }else{
         // Offline mode
-        m_account = MojangAccount::createFromUsernameOffline(ui->userTextBox->text());
+        m_account = MinecraftAccount::createFromUsernameOffline(ui->userTextBox->text());
         QDialog::accept();
     }
 }

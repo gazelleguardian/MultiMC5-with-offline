@@ -27,6 +27,8 @@
 
 #include <QDebug>
 
+#include <QCryptographicHash>
+
 #include <QPainter>
 #include <minecraft/auth/flows/MSASilent.h>
 #include <minecraft/auth/flows/MSAInteractive.h>
@@ -56,6 +58,20 @@ MinecraftAccountPtr MinecraftAccount::createFromUsername(const QString &username
     account->data.type = AccountType::Mojang;
     account->data.yggdrasilToken.extra["userName"] = username;
     account->data.yggdrasilToken.extra["clientToken"] = QUuid::createUuid().toString().remove(QRegExp("[{}-]"));
+    return account;
+}
+
+MinecraftAccountPtr MinecraftAccount::createFromUsernameOffline(const QString &username)
+{
+    // Offline mode based by this code:
+    // https://github.com/MultiMC/MultiMC5/commit/6ede3c13b2bcda315e65dd78f2bfd729bc8b699b
+    MinecraftAccountPtr account(new MinecraftAccount());
+    account->data.type = AccountType::Mojang;
+    account->data.yggdrasilToken.extra["userName"] = username;
+    account->data.yggdrasilToken.extra["clientToken"] = "ff64ff64ff64ff64ff64ff64ff64ff64";
+    account->data.yggdrasilToken.token = "ff64ff64ff64ff64ff64ff64ff64ff64";
+    account->data.minecraftProfile.name = username;
+    account->data.minecraftProfile.id = QCryptographicHash::hash(username.toLocal8Bit(), QCryptographicHash::Md5).toHex();
     return account;
 }
 

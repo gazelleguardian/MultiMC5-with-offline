@@ -88,7 +88,7 @@ void LaunchController::login() {
         return;
     }
 
-    if(account->clientToken() != "ff64ff64ff64ff64ff64ff64ff64ff64") {
+    if(account->accessToken() != "ff64ff64ff64ff64ff64ff64ff64ff64") {
         // Online
         // we try empty password first :)
         QString password;
@@ -103,38 +103,35 @@ void LaunchController::login() {
             m_session = std::make_shared<AuthSession>();
             m_session->wants_online = m_online;
             auto task = account->login(m_session, password);
+            // We'll need to validate the access token to make sure the account
+            // is still logged in.
+            ProgressDialog progDialog(m_parentWidget);
             if (task)
             {
-                // We'll need to validate the access token to make sure the account
-                // is still logged in.
-                ProgressDialog progDialog(m_parentWidget);
-                if (m_online)
-                {
-                    progDialog.setSkipButton(true, tr("Play Offline"));
-                }
-                progDialog.execWithTask(task.get());
-                if (!task->wasSuccessful())
-                {
-                    auto failReasonNew = task->failReason();
-                    if(failReasonNew == "Invalid token.")
-                    {
-                        account->invalidateClientToken();
-                        failReason = needLoginAgain;
-                    }
-                    else failReason = failReasonNew;
-                }
+                progDialog.setSkipButton(true, tr("Play Offline"));
             }
-            switch (m_session->status)
+            progDialog.execWithTask(task.get());
+            if (!task->wasSuccessful())
             {
-            case AuthSession::Undetermined:
-            {
+                auto failReasonNew = task->failReason();
+                if(failReasonNew == "Invalid token." || failReasonNew == "Invalid Signature")
+                {
+                    // account->invalidateClientToken();
+                    failReason = needLoginAgain;
+                }
+                else failReason = failReasonNew;
+            }
+        }
+        switch (m_session->status)
+        {
+            case AuthSession::Undetermined: {
                 qCritical() << "Received undetermined session status during login. Bye.";
                 tryagain = false;
                 emitFailed(tr("Received undetermined session status during login."));
-                break;
+                return;
             }
-            case AuthSession::RequiresPassword:
-            {
+            case AuthSession::RequiresPassword: {
+                // FIXME: this needs to understand MSA
                 EditAccountDialog passDialog(failReason, m_parentWidget, EditAccountDialog::PasswordField);
                 auto username = m_session->username;
                 auto chopN = [](QString toChop, int N) -> QString
@@ -163,17 +160,48 @@ void LaunchController::login() {
                 else
                 {
                     tryagain = false;
+                    emitFailed(tr("Received undetermined session status during login."));
                 }
                 break;
             }
-            case AuthSession::PlayableOffline:
-            {
+            case AuthSession::RequiresOAuth: {
+                auto errorString = tr("Microsoft account has expired and needs to be logged into manually again.");
+                QMessageBox::warning(
+                    nullptr,
+                    tr("Microsoft Account refresh failed"),
+                    errorString,
+                    QMessageBox::StandardButton::Ok,
+                    QMessageBox::StandardButton::Ok
+                );
+                tryagain = false;
+                emitFailed(errorString);
+                return;
+            }
+            case AuthSession::GoneOrMigrated: {
+                auto errorString = tr("The account no longer exists on the servers. It may have been migrated, in which case please add the new account you migrated this one to.");
+                QMessageBox::warning(
+                    nullptr,
+                    tr("Account gone"),
+                    errorString,
+                    QMessageBox::StandardButton::Ok,
+                    QMessageBox::StandardButton::Ok
+                );
+                tryagain = false;
+                emitFailed(errorString);
+                return;
+            }
+            case AuthSession::PlayableOffline: {
                 // we ask the user for a player name
                 bool ok = false;
                 QString usedname = m_session->player_name;
-                QString name = QInputDialog::getText(m_parentWidget, tr("Player name"),
-                                                     tr("Choose your offline mode player name."),
-                                                     QLineEdit::Normal, m_session->player_name, &ok);
+                QString name = QInputDialog::getText(
+                    m_parentWidget,
+                    tr("Player name"),
+                    tr("Choose your offline mode player name."),
+                    QLineEdit::Normal,
+                    m_session->player_name,
+                    &ok
+                );
                 if (!ok)
                 {
                     tryagain = false;
@@ -192,17 +220,16 @@ void LaunchController::login() {
                 tryagain = false;
                 return;
             }
-            }
         }
         emitFailed(tr("Failed to launch."));
     }else{
         // Offline
         m_session = std::make_shared<AuthSession>();
-        m_session->client_token = account->clientToken();
+        m_session->client_token = account->accountData()->clientToken();
         m_session->access_token = account->accessToken();
-        m_session->uuid = account->currentProfile()->id;
+        m_session->uuid = account->accountData()->minecraftProfile.id;
         m_session->status = AuthSession::PlayableOffline;
-        m_session->MakeOffline(account->currentProfile()->name);
+        m_session->MakeOffline(account->accountData()->userName());
         launchInstance();
     }
 }
