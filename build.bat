@@ -58,7 +58,7 @@ echo This command has to be run from a Visual Studio Developer command prompt (v
 exit /b 1
 
 :end
-echo Configuration %BUILD_TYPE% created with compiler %COMPILER% in build/%COMPILER%-%PRESET%
+echo Configuration %BUILD_TYPE% created with compiler %COMPILER% in build/%COMPILER%-%BUILD_TYPE%
 echo Commands:
-echo compile: cmake --build build/%COMPILER%-%PRESET%
-echo install: cmake --build build/%COMPILER%-%PRESET% -t install
+echo compile: cmake --build build/%COMPILER%-%BUILD_TYPE%
+echo install: cmake --build build/%COMPILER%-%BUILD_TYPE% -t install
